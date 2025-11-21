@@ -1,0 +1,119 @@
+body {
+    font-family: 'Outfit', sans-serif;
+    background-color: #000;
+    overscroll-behavior-y: none;
+    -webkit-tap-highlight-color: transparent;
+}
+
+#scan-view {
+    position: relative;
+    width: 100%;
+    height: 100vh;
+    overflow: hidden;
+}
+
+#reader {
+    width: 100%;
+    height: 100%;
+    background: #000;
+}
+
+#reader video {
+    object-fit: cover;
+    width: 100% !important;
+    height: 100% !important;
+}
+
+/* Laser Scan Animation */
+@keyframes scan-move {
+    0% { top: 5%; opacity: 0; }
+    5% { opacity: 1; }
+    95% { opacity: 1; }
+    100% { top: 95%; opacity: 0; }
+}
+.scan-laser {
+    position: absolute;
+    left: 5%;
+    right: 5%;
+    height: 2px;
+    background: linear-gradient(to right, transparent, #4ade80, transparent);
+    box-shadow: 0 0 15px rgba(74, 222, 128, 0.8);
+    animation: scan-move 2.5s infinite linear;
+    z-index: 15;
+    border-radius: 50%;
+}
+
+/* Modern Shutter Button */
+.shutter-btn {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background-color: rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(4px);
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    cursor: pointer;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+}
+.shutter-btn:active {
+    transform: scale(0.92);
+    background-color: rgba(255, 255, 255, 0.3);
+}
+.shutter-inner {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    background-color: white;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    transition: all 0.2s;
+}
+.shutter-btn:active .shutter-inner {
+    transform: scale(0.85);
+}
+
+/* Custom Range Slider */
+input[type=range] {
+    -webkit-appearance: none;
+    background: transparent;
+    height: 32px; /* Increase touch target */
+}
+input[type=range]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    height: 24px; width: 24px;
+    border-radius: 50%; 
+    background: #ffffff;
+    border: 2px solid rgba(0,0,0,0.1);
+    cursor: pointer; 
+    margin-top: -10px; 
+    box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+}
+input[type=range]::-webkit-slider-runnable-track {
+    width: 100%; 
+    height: 4px;
+    cursor: pointer; 
+    background: rgba(255,255,255,0.4);
+    border-radius: 10px;
+}
+
+/* Nutrition Grades */
+.nutri-score-a { background-color: #038141; color: white; }
+.nutri-score-b { background-color: #85BB2F; color: white; }
+.nutri-score-c { background-color: #FECB02; color: black; }
+.nutri-score-d { background-color: #EE8100; color: white; }
+.nutri-score-e { background-color: #E63E11; color: white; }
+.nutri-score-unknown { background-color: #cbd5e1; color: #64748b; }
+
+/* Veg/Non-Veg */
+.veg-icon { border: 2px solid #166534; padding: 2px; width: 18px; height: 18px; display: flex; align-items: center; justify-content: center; border-radius: 4px; }
+.veg-dot { width: 8px; height: 8px; border-radius: 50%; background-color: #166534; }
+.non-veg-icon { border: 2px solid #7f1d1d; padding: 2px; width: 18px; height: 18px; display: flex; align-items: center; justify-content: center; border-radius: 4px; }
+.non-veg-dot { width: 8px; height: 8px; border-radius: 50%; background-color: #7f1d1d; }
+
+#html5-qrcode-button-camera-permission { display: none; }
+
+/* Hide Scrollbar */
+.no-scrollbar::-webkit-scrollbar { display: none; }
+.no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
