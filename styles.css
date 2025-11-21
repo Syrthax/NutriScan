@@ -917,6 +917,9 @@ body {
     .dock-item svg {
         width: 24px;
         height: 24px;
+        display: block;
+        opacity: 1;
+        visibility: visible;
     }
 }
 
@@ -965,5 +968,8 @@ body {
     .dock-item svg {
         width: 22px;
         height: 22px;
+        display: block;
+        opacity: 1;
+        visibility: visible;
     }
 }
