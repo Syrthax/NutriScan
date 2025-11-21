@@ -1,319 +1,386 @@
-// Initialize Icons with specific styling
-lucide.createIcons();
-
-let html5QrcodeScanner = null;
-let isScanning = false;
-
-// Init
-window.onload = function() { startScanner(); };
-
-// Helper to safely stop the scanner
-async function safelyStopScanner() {
-    if (html5QrcodeScanner) {
-        try {
-            if (html5QrcodeScanner.isScanning) {
-                await html5QrcodeScanner.stop();
-            }
-        } catch (e) {
-            console.log("Stop/Clear skipped or failed (harmless)", e);
-        }
-        isScanning = false;
+// Auto-detect system theme preference
+const detectTheme = () => {
+    const savedTheme = localStorage.getItem('theme');
+    if (savedTheme) {
+        return savedTheme;
     }
-}
+    return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+};
 
-async function startScanner() {
-    document.getElementById('processing-overlay').classList.add('hidden');
-    
-    try {
-        await safelyStopScanner(); // Ensure previous instance is stopped
-        
-        if (!html5QrcodeScanner) {
-            html5QrcodeScanner = new Html5Qrcode("reader");
-        }
-        
-        const config = { 
-            fps: 10, 
-            // FIX: Ensure qrbox dimensions are never smaller than 50px
-            qrbox: function(viewfinderWidth, viewfinderHeight) {
-                const minSize = 50;
-                return { 
-                    width: viewfinderWidth < minSize ? 250 : viewfinderWidth, 
-                    height: viewfinderHeight < minSize ? 250 : viewfinderHeight 
-                };
-            },
-            aspectRatio: window.innerHeight / window.innerWidth,
-            videoConstraints: {
-                facingMode: "environment",
-                focusMode: "continuous",
-                width: { ideal: 1920 },
-                height: { ideal: 1080 } 
-            }
-        };
+// Set theme
+const setTheme = (theme) => {
+    document.documentElement.setAttribute('data-theme', theme);
+    localStorage.setItem('theme', theme);
+};
 
-        await html5QrcodeScanner.start(
-            { facingMode: "environment" }, 
-            config, 
-            onScanSuccess, 
-            () => {} 
-        );
-        
-        isScanning = true;
-        initAdvancedControls();
+// Initialize theme
+let currentTheme = detectTheme();
+setTheme(currentTheme);
 
-    } catch (err) {
-        console.error("Camera Start Error", err);
-        try {
-             // Retry fallback without High Res
-             await safelyStopScanner();
-             await html5QrcodeScanner.start({ facingMode: "environment" }, { fps: 10, qrbox: 250 }, onScanSuccess, () => {});
-             isScanning = true;
-             initAdvancedControls();
-        } catch(e) {
-            console.error("Fallback failed", e);
-        }
+// Theme toggle functionality
+const initThemeToggle = () => {
+    // Toggle from dock
+    const dockThemeToggle = document.getElementById('theme-toggle-dock');
+    if (dockThemeToggle) {
+        dockThemeToggle.addEventListener('click', (e) => {
+            e.preventDefault();
+            toggleTheme();
+        });
     }
-}
+};
 
-function onScanSuccess(decodedText, decodedResult) {
-    if(!isScanning) return;
-    // Haptic feedback if available
-    if (navigator.vibrate) navigator.vibrate(50);
-    handleSuccess(decodedText);
-}
+// Toggle theme function
+const toggleTheme = () => {
+    currentTheme = currentTheme === 'light' ? 'dark' : 'light';
+    setTheme(currentTheme);
+};
 
-async function captureAndScan() {
-    if (!html5QrcodeScanner || !isScanning) return;
+// Listen for system theme changes
+window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
+    if (!localStorage.getItem('theme')) {
+        currentTheme = e.matches ? 'dark' : 'light';
+        setTheme(currentTheme);
+    }
+});
 
-    const videoEl = document.querySelector('#reader video');
-    if(!videoEl) return;
+// Smooth scroll for anchor links
+const initSmoothScroll = () => {
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener('click', function (e) {
+            e.preventDefault();
+            const target = document.querySelector(this.getAttribute('href'));
+            if (target) {
+                const offsetTop = target.offsetTop - 80; // Account for fixed nav
+                window.scrollTo({
+                    top: offsetTop,
+                    behavior: 'smooth'
+                });
+            }
+        });
+    });
+};
 
-    // Button press animation feedback
-    const btn = document.getElementById('snap-btn');
-    btn.style.transform = 'scale(0.9)';
-    setTimeout(() => btn.style.transform = 'scale(1)', 150);
-
-    videoEl.pause(); 
+// Dock navigation
+const initDockNav = () => {
+    const dockItems = document.querySelectorAll('.dock-item');
     
-    document.getElementById('processing-overlay').classList.remove('hidden');
-    document.getElementById('processing-text').textContent = "Scanning...";
-
-    try {
-        const canvas = document.createElement("canvas");
-        canvas.width = videoEl.videoWidth;
-        canvas.height = videoEl.videoHeight;
-        const ctx = canvas.getContext("2d");
-        ctx.drawImage(videoEl, 0, 0, canvas.width, canvas.height);
-
-        await safelyStopScanner();
-
-        if ('BarcodeDetector' in window) {
-            try {
-                const barcodeDetector = new BarcodeDetector({ formats: ['ean_13', 'ean_8', 'upc_a', 'upc_e'] });
-                const barcodes = await barcodeDetector.detect(canvas);
-                if (barcodes.length > 0) {
-                    handleSuccess(barcodes[0].rawValue);
-                    return;
+    dockItems.forEach(item => {
+        const action = item.dataset.action;
+        
+        if (action && action !== 'theme-toggle') {
+            item.addEventListener('click', (e) => {
+                e.preventDefault();
+                const target = document.querySelector(`#${action}`);
+                if (target) {
+                    const offsetTop = target.offsetTop - 80;
+                    window.scrollTo({
+                        top: offsetTop,
+                        behavior: 'smooth'
+                    });
                 }
-            } catch (e) { console.log("Native detector failed, falling back..."); }
+            });
         }
+        
+        // Tooltip on hover
+        item.addEventListener('mouseenter', function() {
+            this.style.transform = 'translateY(-8px) scale(1.2)';
+        });
+        
+        item.addEventListener('mouseleave', function() {
+            this.style.transform = 'translateY(0) scale(1)';
+        });
+    });
+};
 
-        canvas.toBlob(async (blob) => {
-            const file = new File([blob], "snap.jpg", { type: "image/jpeg" });
-            try {
-                if (!html5QrcodeScanner) html5QrcodeScanner = new Html5Qrcode("reader");
+// Scroll animations using Intersection Observer
+const initScrollAnimations = () => {
+    const observerOptions = {
+        root: null,
+        rootMargin: '0px',
+        threshold: 0.1
+    };
+
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('visible');
                 
-                const result = await html5QrcodeScanner.scanFile(file, true);
-                handleSuccess(result);
-            } catch (err) {
-                showError("No barcode found. Try moving closer and holding steady.");
-                closeErrorModal(); 
+                // Add stretch effect on scroll
+                entry.target.classList.add('stretch');
+                setTimeout(() => {
+                    entry.target.classList.remove('stretch');
+                }, 300);
             }
-        }, 'image/jpeg', 0.95);
+        });
+    }, observerOptions);
 
-    } catch (e) {
-        console.error("Capture error", e);
-        cancelProcessing(); 
-        startScanner(); 
-    }
-}
-
-function cancelProcessing() {
-    if (!isScanning) {
-        startScanner();
-    } else {
-        const videoEl = document.querySelector('#reader video');
-        if(videoEl) videoEl.play();
-        try { html5QrcodeScanner.resume(); } catch(e){}
-    }
-    document.getElementById('processing-overlay').classList.add('hidden');
-}
-
-function handleSuccess(decodedText) {
-    safelyStopScanner().then(() => {
-        fetchProductData(decodedText);
+    // Observe all elements with scroll-element class
+    document.querySelectorAll('.scroll-element').forEach(el => {
+        observer.observe(el);
     });
-}
 
-async function initAdvancedControls() {
-    try {
-        if(!html5QrcodeScanner.html5Qrcode.videoElement) return;
-        const track = html5QrcodeScanner.html5Qrcode.videoElement.srcObject.getVideoTracks()[0];
-        const capabilities = track.getCapabilities();
+    // Add scroll-element class to animated sections
+    document.querySelectorAll('.feature-card, .step, .warning-card, .about-text, .about-image').forEach(el => {
+        el.classList.add('scroll-element');
+        observer.observe(el);
+    });
+};
 
-        if(capabilities.torch) document.getElementById('torch-btn').classList.remove('hidden');
-        
-        if(capabilities.zoom) {
-            const zoomSlider = document.getElementById('zoom-slider');
-            const zoomControls = document.getElementById('zoom-controls');
-            zoomSlider.min = capabilities.zoom.min;
-            zoomSlider.max = capabilities.zoom.max;
-            zoomSlider.step = capabilities.zoom.step || 0.1;
-            zoomControls.classList.remove('hidden');
-        }
-    } catch(e) {}
-}
-
-function handleZoom(value) {
-    if(!html5QrcodeScanner) return;
-    html5QrcodeScanner.applyVideoConstraints({ advanced: [{ zoom: parseFloat(value) }] });
-}
-
-let torchOn = false;
-function toggleTorch() {
-    if(!html5QrcodeScanner) return;
-    torchOn = !torchOn;
-    const btn = document.getElementById('torch-btn');
-    if(torchOn) {
-        btn.classList.remove('bg-yellow-400/20', 'text-yellow-300', 'border-yellow-400/50');
-        btn.classList.add('bg-white/10', 'text-white', 'border-white/20');
-    } else {
-        btn.classList.add('bg-yellow-400/20', 'text-yellow-300', 'border-yellow-400/50');
-        btn.classList.remove('bg-white/10', 'text-white', 'border-white/20');
-    }
-    html5QrcodeScanner.applyVideoConstraints({ advanced: [{ torch: torchOn }] });
-}
-
-function triggerFileInput() {
-    document.getElementById('hidden-file-input').click();
-}
-function handleFileScan(input) {
-    if (input.files.length === 0) return;
-    document.getElementById('processing-overlay').classList.remove('hidden');
-    document.getElementById('processing-text').textContent = "Processing...";
+// Parallax effect for blobs
+const initParallax = () => {
+    const blobs = document.querySelectorAll('.blob');
     
-    safelyStopScanner().then(() => {
-         if (!html5QrcodeScanner) html5QrcodeScanner = new Html5Qrcode("reader");
-         return html5QrcodeScanner.scanFile(input.files[0], true);
-    })
-    .then(decodedText => handleSuccess(decodedText))
-    .catch(err => {
-        showError("Could not read barcode from image.");
-        document.getElementById('processing-overlay').classList.add('hidden');
-        input.value = '';
-        startScanner();
+    window.addEventListener('scroll', () => {
+        const scrolled = window.pageYOffset;
+        
+        blobs.forEach((blob, index) => {
+            const speed = 0.5 + (index * 0.2);
+            const yPos = -(scrolled * speed);
+            blob.style.transform = `translateY(${yPos}px)`;
+        });
     });
-}
+};
 
-// --- Modal Logic ---
-function showManualEntry() {
-    document.getElementById('manual-modal').classList.remove('hidden');
-    document.getElementById('manual-code-input').focus();
-}
-function closeManualEntry() { document.getElementById('manual-modal').classList.add('hidden'); }
-
-function showInfoModal() { document.getElementById('info-modal').classList.remove('hidden'); }
-function closeInfoModal() { document.getElementById('info-modal').classList.add('hidden'); }
-
-function submitManualCode() {
-    const code = document.getElementById('manual-code-input').value.trim();
-    if (code) { closeManualEntry(); handleSuccess(code); }
-}
-
-async function fetchProductData(barcode) {
-    document.getElementById('processing-overlay').classList.remove('hidden');
-    document.getElementById('processing-text').textContent = "Fetching Details...";
-
-    try {
-        const response = await fetch(`https://world.openfoodfacts.org/api/v0/product/${barcode}.json`);
-        const data = await response.json();
-
-        if (data.status === 1 && data.product) {
-            populateProduct(data.product);
-            document.getElementById('scan-view').classList.add('hidden');
-            document.getElementById('result-view').classList.remove('hidden');
+// Dock visibility on scroll
+const initDockVisibility = () => {
+    const dock = document.querySelector('.floating-dock');
+    let lastScroll = 0;
+    
+    window.addEventListener('scroll', () => {
+        const currentScroll = window.pageYOffset;
+        
+        if (currentScroll > 300) {
+            dock.style.opacity = '1';
+            dock.style.transform = 'translateX(-50%) translateY(0)';
         } else {
-            throw new Error("Product not found");
+            dock.style.opacity = '0.9';
         }
-    } catch (error) {
-        document.getElementById('processing-overlay').classList.add('hidden');
-        showError("Product not found. Please check your connection.");
+        
+        // Hide dock when scrolling down, show when scrolling up
+        if (currentScroll > lastScroll && currentScroll > 500) {
+            dock.style.transform = 'translateX(-50%) translateY(120%)';
+        } else {
+            dock.style.transform = 'translateX(-50%) translateY(0)';
+        }
+        
+        lastScroll = currentScroll;
+    });
+};
+
+// Stats counter animation
+const initStatsCounter = () => {
+    const stats = document.querySelectorAll('.stat-number');
+    
+    const animateCount = (element, target) => {
+        const duration = 2000;
+        const increment = target / (duration / 16);
+        let current = 0;
+        
+        const timer = setInterval(() => {
+            current += increment;
+            if (current >= target) {
+                element.textContent = target.toLocaleString() + '+';
+                clearInterval(timer);
+            } else {
+                element.textContent = Math.floor(current).toLocaleString();
+            }
+        }, 16);
+    };
+    
+    const observerOptions = {
+        root: null,
+        rootMargin: '0px',
+        threshold: 0.5
+    };
+    
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                const target = parseInt(entry.target.textContent.replace(/\D/g, ''));
+                animateCount(entry.target, target);
+                observer.unobserve(entry.target);
+            }
+        });
+    }, observerOptions);
+    
+    stats.forEach(stat => observer.observe(stat));
+};
+
+// Add floating animation to dock items
+const initDockAnimations = () => {
+    const dockItems = document.querySelectorAll('.dock-item');
+    
+    dockItems.forEach((item, index) => {
+        item.style.animationDelay = `${index * 0.1}s`;
+    });
+};
+
+// Gradient text animation enhancement
+const initGradientAnimation = () => {
+    const gradientTexts = document.querySelectorAll('.gradient-text');
+    
+    gradientTexts.forEach(text => {
+        text.addEventListener('mouseenter', function() {
+            this.style.animationDuration = '2s';
+        });
+        
+        text.addEventListener('mouseleave', function() {
+            this.style.animationDuration = '8s';
+        });
+    });
+};
+
+// Feature cards hover effect enhancement
+const initFeatureCards = () => {
+    const featureCards = document.querySelectorAll('.feature-card');
+    
+    featureCards.forEach(card => {
+        card.addEventListener('mouseenter', function() {
+            this.style.transform = 'translateY(-10px) scale(1.03)';
+            
+            const icon = this.querySelector('.feature-icon');
+            if (icon) {
+                icon.style.transform = 'rotate(5deg) scale(1.1)';
+            }
+        });
+        
+        card.addEventListener('mouseleave', function() {
+            this.style.transform = 'translateY(0) scale(1)';
+            
+            const icon = this.querySelector('.feature-icon');
+            if (icon) {
+                icon.style.transform = 'rotate(0deg) scale(1)';
+            }
+        });
+    });
+};
+
+// Phone mockup interactive animation
+const initPhoneMockup = () => {
+    const phone = document.querySelector('.phone-mockup');
+    
+    if (phone) {
+        phone.addEventListener('mouseenter', function() {
+            this.style.transform = 'scale(1.05) rotateY(5deg)';
+        });
+        
+        phone.addEventListener('mouseleave', function() {
+            this.style.transform = 'scale(1) rotateY(0deg)';
+        });
     }
-}
+};
 
-function showError(msg) {
-    document.getElementById('error-msg').textContent = msg;
-    document.getElementById('error-modal').classList.remove('hidden');
-}
+// Button ripple effect
+const initButtonEffects = () => {
+    const buttons = document.querySelectorAll('.btn');
+    
+    buttons.forEach(button => {
+        button.addEventListener('click', function(e) {
+            const ripple = document.createElement('span');
+            const rect = this.getBoundingClientRect();
+            const size = Math.max(rect.width, rect.height);
+            const x = e.clientX - rect.left - size / 2;
+            const y = e.clientY - rect.top - size / 2;
+            
+            ripple.style.width = ripple.style.height = size + 'px';
+            ripple.style.left = x + 'px';
+            ripple.style.top = y + 'px';
+            ripple.classList.add('ripple');
+            
+            this.appendChild(ripple);
+            
+            setTimeout(() => ripple.remove(), 600);
+        });
+    });
+};
 
-function closeErrorModal() {
-    document.getElementById('error-modal').classList.add('hidden');
-    startScanner();
-}
-
-function populateProduct(product) {
-    try {
-        document.getElementById('product-name').textContent = product.product_name || "Unknown Product";
-        document.getElementById('product-brand').textContent = product.brands || "Unknown Brand";
-        
-        const imgEl = document.getElementById('product-image');
-        imgEl.src = product.image_front_url || product.image_url || 'https://via.placeholder.com/400x300?text=No+Image';
-        
-        const scoreBadge = document.getElementById('nutriscore-badge');
-        const grade = (product.nutrition_grades || 'unknown').toLowerCase();
-        document.getElementById('score-val').textContent = grade;
-        scoreBadge.className = `absolute top-4 right-4 px-3 py-1 rounded-full text-xs font-bold shadow-sm uppercase tracking-wider border border-white/20 backdrop-blur-sm nutri-score-${grade}`;
-
-        const vegStatusIcon = document.getElementById('veg-status-icon');
-        vegStatusIcon.innerHTML = ''; vegStatusIcon.classList.add('hidden');
-        if (product.ingredients_analysis_tags) {
-            const isVeg = product.ingredients_analysis_tags.some(tag => tag === 'en:vegetarian');
-            const isNonVeg = product.ingredients_analysis_tags.some(tag => tag === 'en:non-vegetarian');
-            if (isVeg) { vegStatusIcon.innerHTML = `<div class="veg-icon"><div class="veg-dot"></div></div>`; vegStatusIcon.classList.remove('hidden'); } 
-            else if (isNonVeg) { vegStatusIcon.innerHTML = `<div class="non-veg-icon"><div class="non-veg-dot"></div></div>`; vegStatusIcon.classList.remove('hidden'); }
+// Add ripple styles dynamically
+const addRippleStyles = () => {
+    const style = document.createElement('style');
+    style.textContent = `
+        .btn {
+            position: relative;
+            overflow: hidden;
         }
-
-        const originText = product.manufacturing_places || product.origins || product.emb_codes || "";
-        const originSec = document.getElementById('origin-section');
-        if (originText) { originSec.classList.remove('hidden'); document.getElementById('product-origin').textContent = originText; } 
-        else { originSec.classList.add('hidden'); }
-
-        const nutriments = product.nutriments || {};
-        document.getElementById('val-cal').textContent = Math.round(nutriments['energy-kcal_100g'] || nutriments['energy-kcal'] || 0);
-        document.getElementById('val-sugar').textContent = (nutriments.sugars_100g || nutriments.sugars || 0).toFixed(1);
-        document.getElementById('val-fat').textContent = (nutriments.fat_100g || nutriments.fat || 0).toFixed(1);
-        document.getElementById('val-protein').textContent = (nutriments.proteins_100g || nutriments.proteins || 0).toFixed(1);
-
-        document.getElementById('product-ingredients').textContent = product.ingredients_text_en || product.ingredients_text || "Ingredients list not available.";
-
-        const container = document.getElementById('tags-container');
-        container.innerHTML = '';
-        const addTag = (text, color) => {
-            const span = document.createElement('span');
-            span.className = `text-[10px] uppercase px-3 py-1 bg-${color}-50 text-${color}-700 rounded-full font-bold border border-${color}-100`;
-            span.textContent = text;
-            container.appendChild(span);
-        };
-        if (product.labels_tags) {
-            if (product.labels_tags.some(t => t.includes('vegan'))) addTag('Vegan', 'green');
-            if (product.labels_tags.some(t => t.includes('gluten-free'))) addTag('Gluten Free', 'blue');
-            if (product.labels_tags.some(t => t.includes('organic'))) addTag('Organic', 'emerald');
-            if (product.labels_tags.some(t => t.includes('fssai'))) addTag('FSSAI', 'orange');
+        
+        .ripple {
+            position: absolute;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.5);
+            transform: scale(0);
+            animation: ripple-animation 0.6s ease-out;
+            pointer-events: none;
         }
-    } catch(e) { console.error("Error populating data", e); }
-}
+        
+        @keyframes ripple-animation {
+            to {
+                transform: scale(4);
+                opacity: 0;
+            }
+        }
+    `;
+    document.head.appendChild(style);
+};
 
-function resetApp() { 
-     document.getElementById('result-view').classList.add('hidden');
-     document.getElementById('scan-view').classList.remove('hidden');
-     startScanner();
-}
+// Dynamic blob movement based on mouse position
+const initInteractiveBlobs = () => {
+    const blobs = document.querySelectorAll('.blob');
+    
+    document.addEventListener('mousemove', (e) => {
+        const mouseX = e.clientX / window.innerWidth;
+        const mouseY = e.clientY / window.innerHeight;
+        
+        blobs.forEach((blob, index) => {
+            const speed = (index + 1) * 10;
+            const x = (mouseX - 0.5) * speed;
+            const y = (mouseY - 0.5) * speed;
+            
+            blob.style.transform = `translate(${x}px, ${y}px)`;
+        });
+    });
+};
+
+// Navbar background on scroll
+const initNavbarScroll = () => {
+    const nav = document.querySelector('.glass-nav');
+    
+    if (nav) {
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 50) {
+                nav.style.boxShadow = '0 4px 30px rgba(0, 0, 0, 0.1)';
+            } else {
+                nav.style.boxShadow = 'none';
+            }
+        });
+    }
+};
+
+// Initialize all functions when DOM is ready
+document.addEventListener('DOMContentLoaded', () => {
+    initThemeToggle();
+    initSmoothScroll();
+    initDockNav();
+    initScrollAnimations();
+    initParallax();
+    initDockVisibility();
+    initStatsCounter();
+    initDockAnimations();
+    initGradientAnimation();
+    initFeatureCards();
+    initPhoneMockup();
+    initButtonEffects();
+    addRippleStyles();
+    initInteractiveBlobs();
+    initNavbarScroll();
+    
+    console.log('🌿 NutriScan initialized with theme:', currentTheme);
+});
+
+// Add loading animation
+window.addEventListener('load', () => {
+    document.body.style.opacity = '0';
+    setTimeout(() => {
+        document.body.style.transition = 'opacity 0.5s ease';
+        document.body.style.opacity = '1';
+    }, 100);
+});
