@@ -196,8 +196,12 @@ const initStatsCounter = () => {
     const observer = new IntersectionObserver((entries) => {
         entries.forEach(entry => {
             if (entry.isIntersecting) {
-                const target = parseInt(entry.target.textContent.replace(/\D/g, ''));
-                animateCount(entry.target, target);
+                const text = entry.target.textContent.replace(/\D/g, '');
+                // Only animate if there's a number to animate
+                if (text && !isNaN(parseInt(text))) {
+                    const target = parseInt(text);
+                    animateCount(entry.target, target);
+                }
                 observer.unobserve(entry.target);
             }
         });
