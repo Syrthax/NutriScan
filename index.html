@@ -2,292 +2,317 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>NutriScan - Food Scanner</title>
-    
-    <!-- Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    
-    <!-- HTML5-QRCode Library -->
-    <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
-
-    <!-- Lucide Icons -->
-    <script src="https://unpkg.com/lucide@latest"></script>
-
-    <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-
-    <!-- Custom Styles -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NutriScan - Smart Nutrition Scanner</title>
     <link rel="stylesheet" href="styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 </head>
-<body class="h-screen flex flex-col text-gray-800 bg-gray-50 font-sans">
+<body>
+    <!-- Navigation -->
+    <nav class="glass-nav">
+        <div class="nav-container">
+            <div class="logo">
+                <svg class="logo-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                    <path d="M3 3h18v18H3V3z" stroke-width="2"/>
+                    <path d="M7 7h2M7 11h2M7 15h2M13 7h4M13 11h4M13 15h4" stroke-width="2"/>
+                </svg>
+                <span class="logo-text">NutriScan</span>
+            </div>
+        </div>
+    </nav>
 
-    <!-- 1. SCANNER VIEW -->
-    <div id="scan-view" class="relative h-full w-full flex flex-col bg-black">
-        <div id="reader" class="absolute inset-0 z-0"></div>
+    <!-- Floating Dock -->
+    <nav class="floating-dock">
+        <a href="#home" class="dock-item" title="Home">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" stroke-width="2"/>
+            </svg>
+        </a>
+        <a href="#features" class="dock-item" title="Features">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <rect x="3" y="3" width="7" height="7" stroke-width="2"/>
+                <rect x="14" y="3" width="7" height="7" stroke-width="2"/>
+                <rect x="3" y="14" width="7" height="7" stroke-width="2"/>
+                <rect x="14" y="14" width="7" height="7" stroke-width="2"/>
+            </svg>
+        </a>
+        <a href="#how-it-works" class="dock-item" title="How It Works">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <path d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" stroke-width="2"/>
+            </svg>
+        </a>
+        <a href="#about" class="dock-item" title="About">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <circle cx="12" cy="12" r="10" stroke-width="2"/>
+                <line x1="12" y1="16" x2="12" y2="12" stroke-width="2"/>
+                <line x1="12" y1="8" x2="12.01" y2="8" stroke-width="2"/>
+            </svg>
+        </a>
+        <div class="dock-divider"></div>
+        <a href="https://github.com/Syrthax/NutriScan" target="_blank" rel="noopener" class="dock-item" title="GitHub">
+            <svg viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
+            </svg>
+        </a>
+        <button class="dock-item" id="theme-toggle-dock" aria-label="Toggle theme" title="Toggle Theme">
+            <svg class="sun-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <circle cx="12" cy="12" r="5" stroke-width="2"/>
+                <path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42" stroke-width="2"/>
+            </svg>
+            <svg class="moon-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" stroke-width="2"/>
+            </svg>
+        </button>
+    </nav>
 
-        <!-- Top Bar (Gradient Overlay) -->
-        <div class="absolute top-0 left-0 right-0 z-20 p-6 flex justify-between items-start bg-gradient-to-b from-black/70 via-black/30 to-transparent pointer-events-none h-32">
-            <div class="text-white pointer-events-auto">
-                <div class="flex items-center gap-2 mb-1">
-                    <div class="bg-green-500 p-1.5 rounded-lg">
-                        <i data-lucide="scan-line" class="w-5 h-5 text-white"></i>
+    <!-- Hero Section -->
+    <section class="hero" id="home">
+        <div class="liquid-bg">
+            <div class="blob blob-1"></div>
+            <div class="blob blob-2"></div>
+            <div class="blob blob-3"></div>
+        </div>
+        <div class="hero-content scroll-element">
+            <h1 class="hero-title">
+                <span class="gradient-text">Scan. Analyze. Eat Better.</span>
+            </h1>
+            <p class="hero-subtitle">Instant nutritional insights from any barcode using advanced AI technology</p>
+            <div class="hero-buttons">
+                <a href="https://syrthax.github.io/NutriScan/" target="_blank" class="btn btn-primary">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                        <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" stroke-width="2"/>
+                        <polyline points="9 22 9 12 15 12 15 22" stroke-width="2"/>
+                    </svg>
+                    Launch App
+                </a>
+                <a href="#how-it-works" class="btn btn-secondary">Learn More</a>
+            </div>
+            <div class="hero-stats">
+                <div class="stat-item glass-card">
+                    <div class="stat-number">2M+</div>
+                    <div class="stat-label">Products</div>
+                </div>
+                <div class="stat-item glass-card">
+                    <div class="stat-number">99%</div>
+                    <div class="stat-label">Accuracy</div>
+                </div>
+                <div class="stat-item glass-card">
+                    <div class="stat-number">Fast</div>
+                    <div class="stat-label">Scan Speed</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="features" id="features">
+        <div class="container">
+            <h2 class="section-title scroll-element">
+                <span class="gradient-text">Powerful Features</span>
+            </h2>
+            <div class="features-grid">
+                <div class="feature-card glass-card scroll-element">
+                    <div class="feature-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                            <rect x="3" y="3" width="18" height="18" rx="2" stroke-width="2"/>
+                            <path d="M7 7h2M7 11h2M7 15h2M13 7h4M13 11h4M13 15h4" stroke-width="2"/>
+                        </svg>
                     </div>
-                    <h1 class="font-bold text-xl tracking-tight">NutriScan</h1>
+                    <h3>Barcode Scanner</h3>
+                    <p>Scan any product barcode instantly with your camera for immediate nutritional data</p>
                 </div>
-                <p class="text-xs text-gray-300 font-medium opacity-90">Point camera at any barcode</p>
-            </div>
-            
-            <!-- Top Right Controls -->
-            <div class="flex gap-3 pointer-events-auto">
-                <button onclick="toggleTorch()" id="torch-btn" class="hidden bg-white/10 backdrop-blur-md border border-white/20 p-3 rounded-full text-white hover:bg-white/20 transition active:scale-95">
-                    <i data-lucide="zap" class="w-5 h-5 fill-current"></i>
-                </button>
-                <button onclick="showInfoModal()" class="bg-white/10 backdrop-blur-md border border-white/20 p-3 rounded-full text-white hover:bg-white/20 transition active:scale-95">
-                    <i data-lucide="info" class="w-5 h-5"></i>
-                </button>
-            </div>
-        </div>
-
-        <!-- Viewfinder Area -->
-        <div class="absolute inset-0 z-10 flex items-center justify-center pointer-events-none">
-            <div class="w-72 h-72 relative">
-                <!-- Corners -->
-                <div class="absolute top-0 left-0 w-8 h-8 border-t-4 border-l-4 border-white rounded-tl-2xl shadow-sm"></div>
-                <div class="absolute top-0 right-0 w-8 h-8 border-t-4 border-r-4 border-white rounded-tr-2xl shadow-sm"></div>
-                <div class="absolute bottom-0 left-0 w-8 h-8 border-b-4 border-l-4 border-white rounded-bl-2xl shadow-sm"></div>
-                <div class="absolute bottom-0 right-0 w-8 h-8 border-b-4 border-r-4 border-white rounded-br-2xl shadow-sm"></div>
-                
-                <!-- Laser Animation -->
-                <div class="scan-laser"></div>
-                
-                <!-- Hint Text -->
-                <div class="absolute -bottom-12 left-0 right-0 text-center">
-                    <span class="inline-block bg-black/50 backdrop-blur-md text-white/90 text-xs font-medium px-3 py-1.5 rounded-full border border-white/10">
-                        Tap circle to snap & scan
-                    </span>
-                </div>
-            </div>
-        </div>
-
-        <!-- Bottom Controls (Glassmorphism) -->
-        <div class="absolute bottom-0 left-0 right-0 z-20 bg-gradient-to-t from-black/90 via-black/60 to-transparent pb-10 pt-12 px-6 flex flex-col items-center gap-6">
-            
-            <!-- Zoom Control -->
-            <div id="zoom-controls" class="hidden w-full max-w-xs flex items-center gap-4 pointer-events-auto px-4">
-                <i data-lucide="minus" class="w-4 h-4 text-white/60"></i>
-                <input type="range" id="zoom-slider" min="1" max="5" step="0.1" value="1" class="flex-1 shadow-lg" oninput="handleZoom(this.value)">
-                <i data-lucide="plus" class="w-4 h-4 text-white/60"></i>
-            </div>
-
-            <!-- Main Actions Row -->
-            <div class="flex items-center justify-between w-full max-w-sm pointer-events-auto px-2">
-                
-                <!-- Manual Entry Button -->
-                <button onclick="showManualEntry()" class="flex flex-col items-center gap-1 text-white/80 hover:text-white transition active:scale-95 group">
-                    <div class="w-12 h-12 rounded-full bg-white/10 backdrop-blur-sm border border-white/10 flex items-center justify-center group-hover:bg-white/20">
-                        <i data-lucide="keyboard" class="w-5 h-5"></i>
+                <div class="feature-card glass-card scroll-element">
+                    <div class="feature-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                            <path d="M20.24 12.24a6 6 0 0 0-8.49-8.49L5 10.5V19h8.5z" stroke-width="2"/>
+                            <line x1="16" y1="8" x2="2" y2="22" stroke-width="2"/>
+                            <line x1="17.5" y1="15" x2="9" y2="15" stroke-width="2"/>
+                        </svg>
                     </div>
-                    <span class="text-[10px] font-medium tracking-wide">Manual</span>
-                </button>
-
-                <!-- Shutter Button -->
-                <button onclick="captureAndScan()" class="shutter-btn mx-4" id="snap-btn" aria-label="Snap Photo">
-                    <div class="shutter-inner"></div>
-                </button>
-
-                <!-- Gallery Button -->
-                <button onclick="triggerFileInput()" class="flex flex-col items-center gap-1 text-white/80 hover:text-white transition active:scale-95 group">
-                    <div class="w-12 h-12 rounded-full bg-white/10 backdrop-blur-sm border border-white/10 flex items-center justify-center group-hover:bg-white/20">
-                        <i data-lucide="image" class="w-5 h-5"></i>
+                    <h3>Nutrition Analysis</h3>
+                    <p>Detailed breakdown of calories, proteins, fats, carbs, and essential nutrients</p>
+                </div>
+                <div class="feature-card glass-card scroll-element">
+                    <div class="feature-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                            <circle cx="12" cy="12" r="10" stroke-width="2"/>
+                            <path d="M12 6v6l4 2" stroke-width="2"/>
+                        </svg>
                     </div>
-                    <span class="text-[10px] font-medium tracking-wide">Gallery</span>
-                </button>
-            </div>
-        </div>
-
-        <!-- Loading Overlay -->
-        <div id="processing-overlay" class="hidden absolute inset-0 z-50 bg-black/80 flex items-center justify-center backdrop-blur-lg transition-all duration-300">
-            <div class="text-center p-8">
-                <div class="relative w-16 h-16 mx-auto mb-6">
-                    <div class="absolute inset-0 border-4 border-white/20 rounded-full"></div>
-                    <div class="absolute inset-0 border-4 border-green-500 rounded-full border-t-transparent animate-spin"></div>
+                    <h3>Real-Time Data</h3>
+                    <p>Access up-to-date information from the comprehensive OpenFoodFacts database</p>
                 </div>
-                <h3 class="text-white font-bold text-xl mb-1" id="processing-text">Analyzing...</h3>
-                <p class="text-white/50 text-sm mb-6">Reading barcode details</p>
-                <button onclick="cancelProcessing()" class="px-6 py-2 rounded-full bg-white/10 hover:bg-white/20 text-white text-sm font-medium transition pointer-events-auto">
-                    Cancel
-                </button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Hidden Input -->
-    <input type="file" id="hidden-file-input" accept="image/*" class="hidden" onchange="handleFileScan(this)">
-
-    <!-- 2. RESULTS VIEW -->
-    <div id="result-view" class="hidden fixed inset-0 bg-gray-50 flex flex-col overflow-hidden z-30 animate-fade-in">
-        
-        <!-- Header -->
-        <div class="bg-white/80 backdrop-blur-md shadow-sm border-b border-gray-100 px-4 py-3 z-10 flex justify-between items-center sticky top-0">
-            <div class="flex items-center gap-2">
-                <div class="bg-green-100 p-1.5 rounded-lg">
-                    <i data-lucide="check-circle" class="w-4 h-4 text-green-700"></i>
+                <div class="feature-card glass-card scroll-element">
+                    <div class="feature-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                            <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z" stroke-width="2"/>
+                            <polyline points="3.27 6.96 12 12.01 20.73 6.96" stroke-width="2"/>
+                            <line x1="12" y1="22.08" x2="12" y2="12" stroke-width="2"/>
+                        </svg>
+                    </div>
+                    <h3>Allergen Alerts</h3>
+                    <p>Identify potential allergens and dietary restrictions at a glance</p>
                 </div>
-                <h2 class="font-bold text-gray-800 text-sm tracking-wide uppercase">Product Found</h2>
+                <div class="feature-card glass-card scroll-element">
+                    <div class="feature-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                            <rect x="2" y="7" width="20" height="14" rx="2" stroke-width="2"/>
+                            <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16" stroke-width="2"/>
+                        </svg>
+                    </div>
+                    <h3>Ingredient List</h3>
+                    <p>Complete list of ingredients with detailed composition information</p>
+                </div>
+                <div class="feature-card glass-card scroll-element">
+                    <div class="feature-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                            <path d="M12 2L2 7l10 5 10-5-10-5z" stroke-width="2"/>
+                            <path d="M2 17l10 5 10-5" stroke-width="2"/>
+                            <path d="M2 12l10 5 10-5" stroke-width="2"/>
+                        </svg>
+                    </div>
+                    <h3>Health Scores</h3>
+                    <p>Easy-to-understand health ratings based on nutritional quality</p>
+                </div>
             </div>
-            <button onclick="resetApp()" class="text-xs font-bold bg-gray-900 text-white px-4 py-2 rounded-full shadow-md hover:bg-gray-800 transition flex items-center gap-2 active:scale-95">
-                <i data-lucide="scan-line" class="w-3 h-3"></i> Scan New
-            </button>
         </div>
+    </section>
 
-        <main class="flex-1 overflow-y-auto p-4 space-y-5 no-scrollbar">
-             <!-- Hero Product Card -->
-             <div class="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden">
-                <div class="relative h-64 bg-gradient-to-b from-gray-50 to-white flex items-center justify-center p-6">
-                    <img id="product-image" src="" alt="Product" class="h-full w-full object-contain drop-shadow-xl transition-transform hover:scale-105 duration-300">
-                    <div id="nutriscore-badge" class="absolute top-4 right-4 px-3 py-1.5 rounded-full text-xs font-bold shadow-sm uppercase tracking-wider border border-white/20 backdrop-blur-sm">
-                        Score: <span id="score-val">?</span>
+    <!-- How It Works Section -->
+    <section class="how-it-works" id="how-it-works">
+        <div class="container">
+            <h2 class="section-title scroll-element">
+                <span class="gradient-text">How It Works</span>
+            </h2>
+            <div class="steps">
+                <div class="step scroll-element">
+                    <div class="step-number glass-card">1</div>
+                    <div class="step-content glass-card">
+                        <h3>Scan the Barcode</h3>
+                        <p>Point your camera at any product barcode. Our advanced scanner captures it instantly.</p>
                     </div>
                 </div>
-                <div class="p-6">
-                    <div class="flex items-start justify-between gap-4 mb-2">
-                        <div>
-                            <p id="product-brand" class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-1">Brand</p>
-                            <h2 id="product-name" class="text-2xl font-extrabold text-gray-900 leading-tight">Product Name</h2>
+                <div class="step scroll-element">
+                    <div class="step-number glass-card">2</div>
+                    <div class="step-content glass-card">
+                        <h3>Fetch Data</h3>
+                        <p>We query the OpenFoodFacts API to retrieve comprehensive nutritional information.</p>
+                    </div>
+                </div>
+                <div class="step scroll-element">
+                    <div class="step-number glass-card">3</div>
+                    <div class="step-content glass-card">
+                        <h3>Get Insights</h3>
+                        <p>View detailed nutrition facts, ingredients, allergens, and health scores instantly.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Warning Section -->
+    <section class="warning-section scroll-element">
+        <div class="container">
+            <div class="warning-card glass-card">
+                <div class="warning-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                        <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" stroke-width="2"/>
+                        <line x1="12" y1="9" x2="12" y2="13" stroke-width="2"/>
+                        <line x1="12" y1="17" x2="12.01" y2="17" stroke-width="2"/>
+                    </svg>
+                </div>
+                <div class="warning-content">
+                    <h3>Important Notice</h3>
+                    <p>NutriScan uses the OpenFoodFacts API, a community-driven database. While we strive for accuracy, nutritional information may occasionally contain inaccuracies or be incomplete. Always verify critical dietary information with the product packaging or manufacturer, especially for allergens and medical dietary requirements.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- About Section -->
+    <section class="about" id="about">
+        <div class="container">
+            <h2 class="section-title scroll-element">
+                <span class="gradient-text">About NutriScan</span>
+            </h2>
+            <div class="about-content scroll-element">
+                <div class="about-text glass-card">
+                    <p>NutriScan is a cutting-edge web application designed to empower consumers with instant access to nutritional information. By leveraging the power of the OpenFoodFacts API, we provide a seamless scanning experience that helps you make informed dietary choices.</p>
+                    <p>Our mission is to promote healthier eating habits by making nutritional data accessible, transparent, and easy to understand for everyone.</p>
+                    <div class="about-links">
+                        <a href="../app/web/index.html" class="about-link">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                <circle cx="12" cy="12" r="10" stroke-width="2"/>
+                                <path d="M2 12h20" stroke-width="2"/>
+                                <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" stroke-width="2"/>
+                            </svg>
+                            Visit App
+                        </a>
+                        <a href="https://github.com/Syrthax/NutriScan" target="_blank" class="about-link">
+                            <svg viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
+                            </svg>
+                            View Source
+                        </a>
+                    </div>
+                </div>
+                <div class="about-image glass-card">
+                    <div class="phone-mockup">
+                        <div class="phone-screen">
+                            <div class="mockup-content">
+                                <div class="mockup-header">
+                                    <div class="mockup-bar"></div>
+                                </div>
+                                <div class="mockup-body">
+                                    <div class="scan-area">
+                                        <div class="scan-line"></div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
-                        <div id="veg-status-icon" class="hidden mt-1 flex-shrink-0 bg-gray-50 p-1 rounded-md"></div>
-                    </div>
-                    
-                    <div class="flex gap-2 flex-wrap mt-4" id="tags-container">
-                        <!-- Tags injected here -->
                     </div>
                 </div>
-            </div>
-
-            <!-- Origin Info -->
-            <div id="origin-section" class="hidden bg-blue-50/50 rounded-2xl p-4 border border-blue-100 flex items-start gap-3">
-                <div class="bg-blue-100 p-2 rounded-full text-blue-600 shrink-0">
-                    <i data-lucide="globe" class="w-4 h-4"></i>
-                </div>
-                <div>
-                    <h3 class="font-bold text-blue-900 text-xs uppercase tracking-wide mb-0.5">Origin / Manufacturing</h3>
-                    <p id="product-origin" class="text-sm text-blue-800 font-medium leading-snug"></p>
-                </div>
-            </div>
-
-            <!-- Nutrition Grid -->
-            <div>
-                <h3 class="font-bold text-gray-800 text-lg mb-3 px-1">Nutrition Facts <span class="text-xs font-normal text-gray-400 ml-1">per 100g</span></h3>
-                <div class="grid grid-cols-2 gap-3">
-                    <div class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 flex flex-col items-center justify-center gap-1">
-                        <div class="bg-orange-50 p-2 rounded-full text-orange-600 mb-1"><i data-lucide="flame" class="w-4 h-4"></i></div>
-                        <p class="text-gray-400 text-[10px] uppercase font-bold tracking-wide">Energy</p>
-                        <p class="text-xl font-bold text-gray-900"><span id="val-cal">--</span> <span class="text-xs font-normal text-gray-500">kcal</span></p>
-                    </div>
-                    <div class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 flex flex-col items-center justify-center gap-1">
-                        <div class="bg-pink-50 p-2 rounded-full text-pink-600 mb-1"><i data-lucide="candy" class="w-4 h-4"></i></div>
-                        <p class="text-gray-400 text-[10px] uppercase font-bold tracking-wide">Sugar</p>
-                        <p class="text-xl font-bold text-gray-900"><span id="val-sugar">--</span> <span class="text-xs font-normal text-gray-500">g</span></p>
-                    </div>
-                    <div class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 flex flex-col items-center justify-center gap-1">
-                        <div class="bg-yellow-50 p-2 rounded-full text-yellow-600 mb-1"><i data-lucide="droplet" class="w-4 h-4"></i></div>
-                        <p class="text-gray-400 text-[10px] uppercase font-bold tracking-wide">Fat</p>
-                        <p class="text-xl font-bold text-gray-900"><span id="val-fat">--</span> <span class="text-xs font-normal text-gray-500">g</span></p>
-                    </div>
-                    <div class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 flex flex-col items-center justify-center gap-1">
-                        <div class="bg-blue-50 p-2 rounded-full text-blue-600 mb-1"><i data-lucide="dumbbell" class="w-4 h-4"></i></div>
-                        <p class="text-gray-400 text-[10px] uppercase font-bold tracking-wide">Protein</p>
-                        <p class="text-xl font-bold text-gray-900"><span id="val-protein">--</span> <span class="text-xs font-normal text-gray-500">g</span></p>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Ingredients -->
-            <div class="bg-white rounded-3xl shadow-sm p-6 border border-gray-100 pb-10">
-                <h3 class="font-bold text-gray-800 mb-3 flex items-center gap-2 text-lg">
-                    <i data-lucide="scroll-text" class="w-5 h-5 text-green-600"></i> Ingredients
-                </h3>
-                <p id="product-ingredients" class="text-sm text-gray-600 leading-relaxed">No ingredients listed.</p>
-            </div>
-            
-            <div class="h-12"></div>
-        </main>
-    </div>
-
-    <!-- Info Modal -->
-    <div id="info-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4">
-        <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" onclick="closeInfoModal()"></div>
-        <div class="bg-white w-full max-w-sm rounded-3xl p-6 shadow-2xl relative z-10 transform transition-all scale-100">
-            <div class="flex justify-between items-center mb-4">
-                <h3 class="text-xl font-bold text-gray-900">About NutriScan</h3>
-                <button onclick="closeInfoModal()" class="p-1 rounded-full hover:bg-gray-100 text-gray-500">
-                    <i data-lucide="x" class="w-5 h-5"></i>
-                </button>
-            </div>
-            
-            <div class="space-y-4 text-sm text-gray-600">
-                <div class="flex gap-3 items-start">
-                    <div class="bg-blue-50 p-2 rounded-lg text-blue-600 shrink-0 mt-0.5">
-                        <i data-lucide="wifi" class="w-4 h-4"></i>
-                    </div>
-                    <p><strong>Internet Required:</strong> This app needs an active internet connection to fetch product details.</p>
-                </div>
-
-                <div class="flex gap-3 items-start">
-                    <div class="bg-orange-50 p-2 rounded-lg text-orange-600 shrink-0 mt-0.5">
-                        <i data-lucide="database" class="w-4 h-4"></i>
-                    </div>
-                    <p><strong>Data Source:</strong> We use the <em>Open Food Facts</em> database. While extensive, it may not contain every product.</p>
-                </div>
-
-                <div class="flex gap-3 items-start">
-                    <div class="bg-red-50 p-2 rounded-lg text-red-600 shrink-0 mt-0.5">
-                        <i data-lucide="alert-triangle" class="w-4 h-4"></i>
-                    </div>
-                    <p><strong>Disclaimer:</strong> Data is user-contributed and may contain errors. Always verify with the physical package label before consumption.</p>
-                </div>
-            </div>
-
-            <button onclick="closeInfoModal()" class="w-full mt-6 bg-gray-900 text-white font-bold rounded-xl py-3.5 shadow-lg hover:bg-black transition transform active:scale-95">Got it</button>
-        </div>
-    </div>
-
-    <!-- Manual Entry Modal -->
-    <div id="manual-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4">
-        <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" onclick="closeManualEntry()"></div>
-        <div class="bg-white w-full max-w-sm rounded-3xl p-6 shadow-2xl relative z-10 transform transition-all scale-100">
-            <div class="text-center mb-6">
-                <div class="bg-gray-100 w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-3">
-                    <i data-lucide="keyboard" class="w-6 h-6 text-gray-600"></i>
-                </div>
-                <h3 class="text-xl font-bold text-gray-900">Enter Barcode</h3>
-                <p class="text-sm text-gray-500 mt-1">Type the EAN/UPC number</p>
-            </div>
-            
-            <input type="number" id="manual-code-input" placeholder="e.g. 8901234567890" class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-4 text-lg text-center mb-6 outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent font-mono tracking-widest transition-all">
-            
-            <div class="flex gap-3">
-                <button onclick="closeManualEntry()" class="flex-1 py-3.5 text-gray-600 font-semibold hover:bg-gray-50 rounded-xl transition">Cancel</button>
-                <button onclick="submitManualCode()" class="flex-1 bg-gray-900 text-white font-bold rounded-xl py-3.5 shadow-lg hover:bg-black transition transform active:scale-95">Search</button>
             </div>
         </div>
-    </div>
+    </section>
 
-    <!-- Error Modal -->
-    <div id="error-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4">
-        <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" onclick="closeErrorModal()"></div>
-        <div class="bg-white w-full max-w-sm rounded-3xl p-6 shadow-2xl relative z-10 text-center">
-            <div class="bg-red-50 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
-                <i data-lucide="package-x" class="w-8 h-8 text-red-500"></i>
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-brand">
+                    <div class="logo">
+                        <svg class="logo-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                            <path d="M3 3h18v18H3V3z" stroke-width="2"/>
+                            <path d="M7 7h2M7 11h2M7 15h2M13 7h4M13 11h4M13 15h4" stroke-width="2"/>
+                        </svg>
+                        <span class="logo-text">NutriScan</span>
+                    </div>
+                    <p>Making nutrition transparent and accessible.</p>
+                </div>
+                <div class="footer-links">
+                    <div class="footer-col">
+                        <h4>Product</h4>
+                        <a href="#features">Features</a>
+                        <a href="#how-it-works">How It Works</a>
+                        <a href="../app/web/index.html">Launch App</a>
+                    </div>
+                    <div class="footer-col">
+                        <h4>Resources</h4>
+                        <a href="https://world.openfoodfacts.org/" target="_blank">OpenFoodFacts</a>
+                        <a href="https://github.com/Syrthax/NutriScan" target="_blank">GitHub</a>
+                        <a href="#about">About</a>
+                    </div>
+                </div>
             </div>
-            <h3 class="text-xl font-bold text-gray-900 mb-2">Product Not Found</h3>
-            <p class="text-gray-500 mb-6 text-sm leading-relaxed" id="error-msg">We couldn't find details for this barcode in our global database.</p>
-            <button onclick="closeErrorModal()" class="w-full bg-gray-900 text-white font-bold rounded-xl py-3.5 shadow-lg hover:bg-black transition transform active:scale-95">Try Again</button>
+            <div class="footer-bottom">
+                <p>&copy; 2025 NutriScan. Built with ❤️ by Sarthak using OpenFoodFacts API.</p>
+            </div>
         </div>
-    </div>
+    </footer>
 
-    <!-- Custom Script -->
     <script src="script.js"></script>
 </body>
 </html>
