@@ -21,6 +21,6 @@ It uses a live barcode scanner and the OpenFoodFacts API to instantly fetch:
 https://syrthax.github.io/NutriScan/
 
 ### 📁 Project Structure
-index.html
-styles.css
-script.js
+- index.html
+- styles.css
+- script.js
