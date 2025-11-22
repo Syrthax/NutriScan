@@ -195,6 +195,22 @@ body {
     display: none;
 }
 
+#theme-toggle-dock .sun-icon {
+    display: none;
+}
+
+#theme-toggle-dock .moon-icon {
+    display: block;
+}
+
+[data-theme="dark"] #theme-toggle-dock .sun-icon {
+    display: block;
+}
+
+[data-theme="dark"] #theme-toggle-dock .moon-icon {
+    display: none;
+}
+
 /* Floating Dock */
 .floating-dock {
     position: fixed;

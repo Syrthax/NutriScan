@@ -158,7 +158,7 @@ const initDockVisibility = () => {
         
         // Hide dock when scrolling down, show when scrolling up
         if (currentScroll > lastScroll && currentScroll > 500) {
-            dock.style.transform = 'translateX(-50%) translateY(120%)';
+            dock.style.transform = 'translateX(-50%) translateY(150%)';
         } else {
             dock.style.transform = 'translateX(-50%) translateY(0)';
         }
